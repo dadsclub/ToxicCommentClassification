@@ -41,12 +41,15 @@ ClassificationSummary$F <- t(train %>%
               nThreat = n() - sum(threat),
               nInsult = n() - sum(insult),
               nIdentityHate = n() - sum(identity_hate)))
-colnames(ClassificationSummary) <- c("Count")
+colnames(ClassificationSummary) <- c("T", "F")
 
 
 
 # Plot Bar Graph of each type of classification
 ClassificationSummary %>%
   ggplot() +
-  geom_bar(mapping = aes(x = c("Toxic", "Severe Toxic", "Obscene", "Threat", "Insult", "Identity Hate"), y = T), stat = "identity")
+  geom_bar(mapping = aes(x = c("Toxic", "Severe Toxic", "Obscene", "Threat", "Insult", "Identity Hate"), y = T), stat = "identity") +
+  labs(title = "Number of Comments with Each Classification",
+       x = "Classification",
+       y = "Number of Comments")
 
