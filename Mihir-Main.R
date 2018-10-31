@@ -155,5 +155,21 @@ ClassificationSummary %>%
        x = "Word",
        y = "Number of Occurances"))
 
+
 # Plot most common words within comments flagged as each classification in a grid
 grid.arrange(plotTop10Toxic, plotTop10SevereToxic, plotTop10Obscene, plotTop10Threat, plotTop10Insult, plotTop10IdentityHate)
+
+
+
+# Plot most common words flagged
+tidy_train %>%
+    group_by(word) %>%
+    summarise(NumOfOccurances = n()) %>%
+    arrange(desc(NumOfOccurances)) %>%
+    head(10) %>%
+    ggplot() +
+    geom_bar(mapping = aes(x = word, y = NumOfOccurances), stat = "identity") +
+    labs(title = "Top 10 Words Within Comments Flagged",
+         x = "Word",
+         y = "Number of Occurances")
+
