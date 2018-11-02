@@ -7,8 +7,9 @@ library(ggpubr)
 library(tidytext)
 library(lettercase)
 
+
 # Import data into environment if not already imported
-train <- read_csv("data/train.csv")
+train <- read_csv("train.csv")
 
 # Create a tokenized table, splitting comments by word
 train <- as_tibble(train)
@@ -25,7 +26,7 @@ bad_words <- tokenized %>%
     identity_hate_avg = mean(identity_hate),
     avgTox = sum(toxic_avg, severe_toxic, obscene_avg, threat_avg,
                  insult_avg, identity_hate_avg)  
-  ) %>% filter(count>300) %>%  arrange(desc(avgTox))
+  ) %>% filter(count>350) %>%  arrange(desc(avgTox))
 bad_words %>% top_n(20)
 
 bad_words$zipf <- (bad_words$count/(sum(bad_words$count)))^(-1) 
@@ -37,7 +38,26 @@ bad_words$afinn <- bad_words[,1] %>% left_join(get_sentiments('afinn'))
 # Summary Engineering -----------------------------------------------------
 
 train$allcap <- is_all_caps(train$comment_text)
-train$toxScore <- (train$toxic+train$severe_toxic+train$obscene+train$threat+train$insult+train$identity_hate) 
-train$toxScore[train$toxScore==-Inf] <- 0
-train %>% ggplot() + geom_col(aes(x = allcap, y = toxScore))
+
+
+# Bad Word Reference ------------------------------------------------------
+
+# Here we are having a dictionary of 100 top worst words based on their overall toxicity.
+# We will count the number of bad words in each comment, and use the assigned weight to determine the output
+
+bad_words_dict <- bad_words[,1:8] %>% head(50)
+
+
+count_baddies <- function(text){
+  return(str_count(text, bad_words_dict$word) %>% sum())
+}
+train$badwordcount <- sapply(train$comment_text, count_baddies)
+
+train %>% ggplot() + geom_smooth(aes(x = toxic , y = badwordcount))
+
+
+
+
+
+
 
